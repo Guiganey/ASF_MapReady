@@ -179,9 +179,9 @@ static void set_images()
 
     flowchart_image =
 	glade_xml_get_widget(glade_xml, "flowchart_image");
-    
+
     int i;
-    for (i = 1; i <= 12; ++i)
+    for (i = 1; i <= 12; i=i+1)
       set_help_image(i);
 
     strcpy(image_file, "");
@@ -212,8 +212,8 @@ message_box(const gchar * message)
 
   label = gtk_label_new(message);
 
-  g_signal_connect_swapped(dialog, 
-			   "response", 
+  g_signal_connect_swapped(dialog,
+			   "response",
 			   G_CALLBACK(gtk_widget_destroy),
 			   dialog);
 
@@ -254,9 +254,9 @@ on_input_file_browse_button_clicked(GtkWidget *button)
   of.lpstrTitle = "Select File";
   of.lpstrDefExt = NULL;
   of.Flags = OFN_HIDEREADONLY | OFN_EXPLORER;
-  
+
   retval = GetOpenFileName(&of);
-  
+
   if (!retval) {
     if (CommDlgExtendedError())
       printf("File dialog box error");
@@ -280,7 +280,7 @@ hide_file_selection_dialog ()
 {
     GtkWidget *file_selection_dialog =
 	glade_xml_get_widget(glade_xml, "file_selection_dialog");
- 
+
     gtk_widget_hide(file_selection_dialog);
 }
 
@@ -296,7 +296,7 @@ on_file_selection_dialog_delete_event(GtkWidget *w)
     hide_file_selection_dialog ();
     return TRUE;
 }
- 
+
 SIGNAL_CALLBACK gboolean
 on_file_selection_dialog_destroy_event(GtkWidget *w)
 {
@@ -326,11 +326,11 @@ on_file_selection_dialog_ok_button_clicked(GtkWidget *w)
 	GTK_FILE_SELECTION(file_selection_dialog));
 
     current = selections;
-    
+
     while (*current)
-    {	
+    {
 	add_file(*current);
-	++current;
+	current = current+1;
     }
 
     g_strfreev(selections);
@@ -459,7 +459,7 @@ update_output_filename(const char * input_file_and_path)
         if (!r) r = "";
         return r;
     }
-    
+
     char *output_file_and_path =
       CALLOC(strlen(input_file_and_path)+32,sizeof(char));
     strcpy(output_file_and_path, input_file_and_path);
@@ -554,7 +554,7 @@ update_buttons()
     if (!input_file_and_path)
         input_file_and_path = "";
 
-    set_widget_sensitive("execute_button", 
+    set_widget_sensitive("execute_button",
         strlen(input_file_and_path) > 0);
 
     const char * output_file_and_path =
@@ -733,7 +733,7 @@ check_files(const char * input_file)
       // First: check for .RAW/.LDR
       raw_exists = file_exists(raw_file) || file_exists(RAW_file);
       ldr_exists = file_exists(ldr_file) || file_exists(LDR_file);
-      
+
       if (raw_exists && ldr_exists) {
         status = STATUS_LDR_INSTEAD;
       }
@@ -741,7 +741,7 @@ check_files(const char * input_file)
         // Second: check for STF .000
         stf_exists = file_exists(stf0_file);
         par_exists = file_exists(par0_file) || file_exists(PAR0_file);
-        
+
         if (stf_exists && par_exists) {
           status = STATUS_STF_INSTEAD;
         }
@@ -759,7 +759,7 @@ check_files(const char * input_file)
             meta_exists = file_exists(meta_file);
             in_exists = file_exists(in_file);
             fmt_exists = file_exists(fmt_file);
-            
+
             if (meta_exists && in_exists && fmt_exists && img_exists) {
               status = STATUS_OK;
             }
@@ -885,11 +885,11 @@ switch_on_help(int on)
 
     flowchart_image =
         glade_xml_get_widget(glade_xml, "flowchart_image");
-    output_image = 
+    output_image =
         glade_xml_get_widget(glade_xml, "output_image");
     hbox_label_view_output =
         glade_xml_get_widget(glade_xml, "hbox_label_view_output");
-    help_label = 
+    help_label =
         glade_xml_get_widget(glade_xml, "help_label");
 
     if (on) {
@@ -928,7 +928,7 @@ static void view_debug_image(int step)
     }
     else {
       // normal case: show debug image for step "step"
-      char *filename = 
+      char *filename =
         STRDUP(gtk_entry_get_text(GTK_ENTRY(output_file_entry)));
       char lbl[256];
 
@@ -937,7 +937,7 @@ static void view_debug_image(int step)
 
       sprintf(image_file, "%s%s.png", filename, suffix_for_step(step));
       if (g_file_test(image_file, G_FILE_TEST_EXISTS))
-      {        
+      {
         switch_on_help(FALSE);
 
         GError *err = NULL;
@@ -959,21 +959,21 @@ static void view_debug_image(int step)
         GtkWidget * label_view_output =
           glade_xml_get_widget(glade_xml, "label_view_output");
         gtk_label_set_text(GTK_LABEL(label_view_output), lbl);
-          
+
         gtk_widget_show(asf_view_button);
       }
       else {
         snprintf(lbl, 255, "File not found: %s", image_file);
         switch_on_help(FALSE);
         gtk_widget_hide(output_image);
-        
+
         GtkWidget * label_view_output =
           glade_xml_get_widget(glade_xml, "label_view_output");
         gtk_label_set_text(GTK_LABEL(label_view_output), lbl);
 
         gtk_widget_hide(asf_view_button);
       }
-      
+
       FREE(filename);
     }
 }
@@ -982,13 +982,13 @@ static void delete_all_generated_images()
 {
     GtkWidget * output_file_entry =
 	glade_xml_get_widget(glade_xml, "output_file_entry");
-    char *output_filename_full = 
+    char *output_filename_full =
         STRDUP(gtk_entry_get_text(GTK_ENTRY(output_file_entry)));
     char *filename = stripExt(output_filename_full);
     char *f = MALLOC(sizeof(float)*(strlen(filename)+64));
 
     int i;
-    for (i=1; i<=12; ++i) {
+    for (i=1; i<=12; i=i+1) {
         sprintf(f, "%s%s.jpg", filename, suffix_for_step(i));
         remove_file_silent(f);
         sprintf(f, "%s%s.png", filename, suffix_for_step(i));
@@ -1025,11 +1025,11 @@ static void delete_all_generated_images()
 
     GtkWidget * input_file_entry =
 	glade_xml_get_widget(glade_xml, "input_file_entry");
-    char *input_filename_full = 
+    char *input_filename_full =
         STRDUP(gtk_entry_get_text(GTK_ENTRY(input_file_entry)));
     filename = stripExt(input_filename_full);
 
-    for (i=1; i<=12; ++i) {
+    for (i=1; i<=12; i=i+1) {
         sprintf(f, "%s%s.txt", filename, suffix_for_step(i));
         remove_file_silent(f);
     }
@@ -1089,7 +1089,7 @@ static int stp_exec(stp_params_t *stp_params)
   set_asf_tmp_dir(tmp_dir);
   FREE(tmp_dir);
 
-  // this stuff shouldn't cause collisions, local stack variables      
+  // this stuff shouldn't cause collisions, local stack variables
   int npatches = 1;
   params_in->iflag = &(stp_params->debug_flag);
   params_in->npatches = &npatches;
@@ -1112,15 +1112,15 @@ create_stp_params(const char *input_file, const char *output_file,
   strcpy(stp_params->input_file, input_file);
   strcpy(stp_params->output_file, output_file);
   stp_params->status = status;
-  
+
   stp_params->fd_set = g_fd != NULL;
   stp_params->fdd_set = g_fdd != NULL;
   stp_params->fddd_set = g_fddd != NULL;
-  
+
   stp_params->fd = g_fd == NULL ? 0. : *g_fd;
   stp_params->fdd = g_fdd == NULL ? 0. : *g_fdd;
   stp_params->fddd = g_fddd == NULL ? 0. : *g_fddd;
-  
+
   stp_params->debug_flag = debug_flag;
   stp_params->ifirstline = ifirstline;
   return stp_params;
@@ -1152,7 +1152,7 @@ static void check_status_file(const char *statFile)
     //else if (strcmp_case(buf, "Range-doppler done")==0)
     //  on_step=12;
     else {
-      for (i=1; i<=12; ++i) {
+      for (i=1; i<=12; i=i+1) {
         if (strstr(buf,suffix_for_step(i))!=NULL) {
           on_step=i;
           break;
@@ -1162,7 +1162,7 @@ static void check_status_file(const char *statFile)
 
     // if we figured it out, highlight that step's text
     if (on_step>0) {
-      for (i=1; i<=12; ++i) {
+      for (i=1; i<=12; i=i+1) {
         int highlight_level = 0;
         if (i<on_step)
           highlight_level = 1;
@@ -1190,7 +1190,7 @@ static char *stp_params_to_string(stp_params_t *p)
 SIGNAL_CALLBACK void
 on_execute_button_clicked(GtkWidget *button, gpointer user_data)
 {
-    int debug_flag = 
+    int debug_flag =
 	keep_flag(1, 8192) |
 	keep_flag(2, 4096) |
 	keep_flag(3, 2048) |
@@ -1204,7 +1204,7 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
 	keep_flag(11, 4) |
 	keep_flag(12, 2) |
 	execute_flag("range_complex_multiply", 16384) |
-	execute_flag("range_migration", 32768) | 
+	execute_flag("range_migration", 32768) |
         execute_flag("azimuth_complex_multiply", 65536);
 
     if (debug_flag == 0)
@@ -1292,7 +1292,7 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
 
     stp_params_t *stp_params = create_stp_params(input_file, output_file,
                                    status, debug_flag, ifirstline);
-    
+
     char *args = stp_params_to_string(stp_params);
     int l = 128 + strlen(get_asf_bin_dir_win()) + strlen(args);
     char *cmd = MALLOC(sizeof(char)*l);
@@ -1330,7 +1330,8 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
             while (gtk_events_pending())
                 gtk_main_iteration();
 
-            if (++counter % 200 == 0) {
+                counter = counter + 1;
+            if (counter % 200 == 0) {
                 /* check status file */
                 check_status_file(statFile);
             }
@@ -1370,7 +1371,8 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
 
 	g_usleep(50);
 
-        if (++counter % 200 == 0) {
+            counter = counter + 1;
+        if (counter % 200 == 0) {
           /* check status file */
           check_status_file(statFile);
         }
@@ -1389,7 +1391,7 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
     gtk_widget_set_sensitive(stop_button, FALSE);
     gtk_widget_set_sensitive(clear_button, TRUE );
 
-    for (i=1; i<=12; ++i)
+    for (i=1; i<=12; i=i+1)
       highlight_step(i, FALSE);
 }
 
@@ -1427,7 +1429,7 @@ set_toggles()
     azimuth_complex_multiply_checkbutton_toggled();
 
     int i;
-    for (i = 1; i <= 12; ++i)
+    for (i = 1; i <= 12; i=i+1)
 	set_underlines_off(i);
 }
 
@@ -1717,7 +1719,7 @@ static int
 all_selected()
 {
   int i, ret=TRUE;
-  for (i = 1; i <= 12; ++i)
+  for (i = 1; i <= 12; i=i+1)
   {
     char button_id[32];
     sprintf(button_id, "step%d_togglebutton", i);
@@ -1756,7 +1758,7 @@ on_button_select_all_clicked(GtkWidget *button, gpointer user_data)
     setting = FALSE;
 
   int i;
-  for (i = 1; i <= 12; ++i)
+  for (i = 1; i <= 12; i=i+1)
     select_button(i, setting);
 }
 
@@ -1764,19 +1766,19 @@ static char * escapify(const char * s)
 {
     int i,j;
     char * ret = MALLOC(2*strlen(s)*sizeof(char));
-    for (i = 0, j = 0; i <= strlen(s); ++i)
+    for (i = 0, j = 0; i <= strlen(s); i=i+1)
     {
         switch(s[i])
         {
             case '\\':
                 ret[j] = ret[j+1] = s[i];
-                ++j;
+                j=j+1;
                 break;
             default:
                 ret[j] = s[i];
                 break;
         }
-        ++j;
+        j=j+1;
     }
     return ret;
 }
@@ -1921,7 +1923,7 @@ hide_doppler_parameters_dialog ()
 {
     GtkWidget *doppler_parameters_dialog =
 	glade_xml_get_widget(glade_xml, "doppler_parameters_dialog");
- 
+
     gtk_widget_hide(doppler_parameters_dialog);
 }
 
@@ -1937,7 +1939,7 @@ on_doppler_parameters_dialog_delete_event(GtkWidget *w)
     hide_doppler_parameters_dialog ();
     return TRUE;
 }
- 
+
 SIGNAL_CALLBACK gboolean
 on_doppler_parameters_dialog_destroy_event(GtkWidget *w)
 {
@@ -2035,7 +2037,7 @@ set_entry_with_float_value(const gchar * entry_name, float value)
     } else {
         sprintf(s, "%f", value);
     }
-        
+
     gtk_entry_set_text(GTK_ENTRY(w), s);
 }
 
@@ -2066,7 +2068,7 @@ on_edit_doppler_parameters_button_clicked(GtkWidget *w)
             if (g_fdd) linear = *g_fdd;
             if (g_fddd) quadratic = *g_fddd;
         }
-        
+
         set_entry_with_float_value("constant_entry", constant);
         set_entry_with_float_value("linear_entry", linear);
         set_entry_with_float_value("quadratic_entry", quadratic);
@@ -2116,7 +2118,7 @@ on_doppler_parameters_dialog_ok_button_clicked(GtkWidget *w)
     {
         g_fdd = NULL;
     }
-    else 
+    else
     {
         g_fdd = MALLOC(sizeof(float));
         *g_fdd = linear;
@@ -2139,7 +2141,7 @@ SIGNAL_CALLBACK void
 on_doppler_parameters_dialog_restore_button_clicked(GtkWidget *w)
 {
     gchar * in_file = get_in_file_name();
-    
+
     float constant, linear, quadratic;
     read_doppler_parameters(in_file, &constant, &linear, &quadratic);
 
@@ -2154,7 +2156,7 @@ static void set_stop()
 {
     GtkWidget * output_file_entry =
 	glade_xml_get_widget(glade_xml, "output_file_entry");
-    char *output_filename_full = 
+    char *output_filename_full =
         STRDUP(gtk_entry_get_text(GTK_ENTRY(output_file_entry)));
 
     char *dir = get_dirname(output_filename_full);
