@@ -330,7 +330,7 @@ on_file_selection_dialog_ok_button_clicked(GtkWidget *w)
     while (*current)
     {	
 	add_file(*current);
-	++current;
+	current = current + 1;
     }
 
     g_strfreev(selections);
@@ -1329,8 +1329,9 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
         do {
             while (gtk_events_pending())
                 gtk_main_iteration();
-
-            if (++counter % 200 == 0) {
+		
+		counter = counter + 1;
+            if (counter % 200 == 0) {
                 /* check status file */
                 check_status_file(statFile);
             }
@@ -1369,8 +1370,8 @@ on_execute_button_clicked(GtkWidget *button, gpointer user_data)
           gtk_main_iteration();
 
 	g_usleep(50);
-
-        if (++counter % 200 == 0) {
+	    counter = counter + 1;
+        if (counter % 200 == 0) {
           /* check status file */
           check_status_file(statFile);
         }
@@ -1770,13 +1771,13 @@ static char * escapify(const char * s)
         {
             case '\\':
                 ret[j] = ret[j+1] = s[i];
-                ++j;
+                j = j + 1;
                 break;
             default:
                 ret[j] = s[i];
                 break;
         }
-        ++j;
+        j = j + 1;
     }
     return ret;
 }
